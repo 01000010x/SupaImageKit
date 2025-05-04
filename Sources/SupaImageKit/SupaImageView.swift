@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import OSLog
 
 struct SupaImageView<Downloader: ImageDownloaderProtocol, Content: View>: View where Downloader: Sendable {
     private let imageName: String
@@ -13,6 +14,12 @@ struct SupaImageView<Downloader: ImageDownloaderProtocol, Content: View>: View w
     private let downloader: Downloader
     private let bucketName: String
     private let content: (Image) -> Content
+    
+    // Logger
+    private let logger = Logger(
+        subsystem: Bundle.main.bundleIdentifier!,
+        category: "SupaImageView"
+    )
     
     @State private var image: UIImage?
     
@@ -76,7 +83,7 @@ private extension SupaImageView {
             }
         } catch {
             // TODO: Manage an error state on the image or a retry
-            print("[SupaImageKit] Failed to load image \(imageName): \(error.localizedDescription)")
+            logger.error("[SupaImageKit] Failed to load image \(imageName): \(error.localizedDescription)")
         }
     }
 }
