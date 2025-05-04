@@ -4,7 +4,7 @@
 
 ## Features
 - Loads images from Supabase Storage
-- Caches them locally
+- Caches images locally
 - Shows placeholder while loading
 - 100% SwiftUI compatible
 
@@ -12,13 +12,15 @@
 
 ```swift
 SupabaseImageView(
-    imageName: image_name_in_bucket,
-    bucketName: bucket_name_or_path,
+    imageName: image_name_or_path_in_bucket,
+    bucketName: bucket_name,
     client: your_supabase_client_instance,
     cacheType: disk_or_memory (.disk or .memory)
-)
-.resizable()
-.aspectRatio(contentMode: .fit)
+) { image in
+    image
+        .resizable()
+        .scaledToFit()
+}
 ```
 
 ## Missing things
