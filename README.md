@@ -17,13 +17,14 @@
 ## Usage
 
 ```swift
-SupaImageView(
-    imageName: "photo.jpg",
-    cache: MyImageCache(),
-    downloader: MySupabaseDownloader()
+SupabaseImageView(
+    imageName: image_name_in_bucket,
+    bucketName: bucket_name_or_path,
+    client: your_supabase_client_instance,
+    cacheType: disk_or_memory (.disk or .memory)
 )
 .resizable()
-.aspectRatio(contentMode: .fill)
+.aspectRatio(contentMode: .fit)
 ```
 
 ## Missing things
