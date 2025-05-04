@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "SupaImageKit",
     platforms: [
-        .iOS(.v15)
+        .iOS(.v17)
     ],
     products: [
         .library(name: "SupaImageKit", targets: ["SupaImageKit"]),
@@ -14,7 +14,7 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/supabase/supabase-swift.git",
-            from: "2.27.0"
+            .upToNextMajor(from: "2.27.0")
         )
     ],
     targets: [
