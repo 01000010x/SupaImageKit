@@ -1,12 +1,6 @@
 # SupaImageKit
 
-<pre>
-```swift
-.package(url: "https://github.com/01000010x/SupaImageKit", from: "1.0.0")
-```
-</pre>
-
-🖼️ SwiftUI async image loader + cache for Supabase Storage.
+🖼️ SwiftUI async image loader + cache for Supabase Storage for iOS
 
 ## Features
 - Loads images from Supabase Storage

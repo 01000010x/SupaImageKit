@@ -7,11 +7,12 @@
 
 import SwiftUI
 
-struct SupaImageView<Downloader: ImageDownloaderProtocol>: View where Downloader: Sendable {
+struct SupaImageView<Downloader: ImageDownloaderProtocol, Content: View>: View where Downloader: Sendable {
     private let imageName: String
     private let cache: ImageCacheServiceProtocol
     private let downloader: Downloader
     private let bucketName: String
+    private let content: (Image) -> Content
     
     @State private var image: UIImage?
     
@@ -19,36 +20,38 @@ struct SupaImageView<Downloader: ImageDownloaderProtocol>: View where Downloader
         imageName: String,
         bucketName: String,
         cache: ImageCacheServiceProtocol,
-        downloader: Downloader
+        downloader: Downloader,
+        @ViewBuilder content: @escaping (Image) -> Content
     ) {
         self.imageName = imageName
         self.cache = cache
         self.downloader = downloader
         self.bucketName = bucketName
+        self.content = content
     }
     
     var body: some View {
-        if let image {
-            Image(uiImage: image)
-                .resizable()
-        } else {
-            Placeholder()
-                .onAppear {
-                    Task {
-                        await loadImage()
-                    }
+        Group {
+            if let image {
+                content(Image(uiImage: image))
+            } else {
+                content(Placeholder())
+            }
+        }
+        .onAppear {
+            if image == nil {
+                Task {
+                    await loadImage()
                 }
+            }
         }
     }
 }
 
 // MARK: - Subviews
 private extension SupaImageView {
-    func Placeholder() -> some View {
+    func Placeholder() -> Image {
         Image(systemName: "photo")
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .foregroundStyle(.gray)
     }
 }
 

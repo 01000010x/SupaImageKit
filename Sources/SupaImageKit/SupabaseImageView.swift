@@ -13,17 +13,20 @@ public enum CacheType {
     case memory, disk
 }
 
-public struct SupabaseImageView: View {
+public struct SupabaseImageView<Content: View>: View {
     private let imageName: String
     private let bucketName: String
     private let downloader: SupabaseImageDownloader
     private let cache: ImageCacheServiceProtocol
+    private var isResizable: Bool = false
+    private let content: (Image) -> Content
     
     public init(
         imageName: String,
         bucketName: String,
         client: SupabaseClient,
-        cacheType: CacheType
+        cacheType: CacheType,
+        @ViewBuilder content: @escaping (Image) -> Content
     ) {
         self.imageName = imageName
         self.bucketName = bucketName
@@ -35,6 +38,8 @@ public struct SupabaseImageView: View {
         case .memory:
             self.cache = InMemoryImageCache()
         }
+        
+        self.content = content
     }
     
     public var body: some View {
@@ -43,6 +48,8 @@ public struct SupabaseImageView: View {
             bucketName: bucketName,
             cache: cache,
             downloader: downloader
-        )
+        ) { image in
+            content(image)
+        }
     }
 }
