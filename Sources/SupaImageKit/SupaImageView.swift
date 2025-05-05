@@ -45,13 +45,7 @@ struct SupaImageView<Downloader: ImageDownloaderProtocol, Content: View>: View w
                 content(Placeholder())
             }
         }
-        .onAppear {
-            if image == nil {
-                Task {
-                    await loadImage()
-                }
-            }
-        }
+        .onAppear { loadImage() }
     }
 }
 
@@ -64,26 +58,30 @@ private extension SupaImageView {
 
 // MARK: - Utilities
 private extension SupaImageView {
-    func loadImage() async {
-        // Check cache for image first
-        if let cached = cache.loadImage(named: imageName) {
-            self.image = cached
-            return
-        }
+    func loadImage() {
+        guard image == nil else { return }
         
-        // Then request the image if not in cache
-        do {
-            let data = try await Task.detached(priority: .utility) {
-                try await downloader.downloadImage(named: imageName, from: bucketName)
-            }.value
-            
-            if let downloaded = UIImage(data: data) {
-                try? cache.cacheImage(downloaded, with: imageName)
-                self.image = downloaded
+        Task {
+            // Check cache for image first
+            if let cached = cache.loadImage(named: imageName) {
+                await MainActor.run { self.image = cached }
+                return
             }
-        } catch {
-            // TODO: Manage an error state on the image or a retry
-            logger.error("[SupaImageKit] Failed to load image \(imageName): \(error.localizedDescription)")
+            
+            // Then request the image if not in cache
+            do {
+                let data = try await Task.detached(priority: .utility) {
+                    try await downloader.downloadImage(named: imageName, from: bucketName)
+                }.value
+                
+                if let downloaded = UIImage(data: data) {
+                    try? cache.cacheImage(downloaded, with: imageName)
+                    await MainActor.run { self.image = downloaded }
+                }
+            } catch {
+                // TODO: Manage an error state on the image or a retry
+                logger.error("[SupaImageKit] Failed to load image \(imageName): \(error.localizedDescription)")
+            }
         }
     }
 }
